@@ -214,10 +214,20 @@ class Cache () :
 
     def _extract_dict(self, device, filename, pack) :
         to_ret = dict(pdsc_file=filename, pack_file=pack)
-        try : to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
-                                                      size=m["size"]))
-                                       for m in device("memory")])
-        except (KeyError, TypeError, IndexError) as e : pass
+        memories = []
+        try:
+            memories = device("memory")
+        except:
+            pass
+        try:
+            memories.extend(device.parent("memory"))
+        except:
+            pass
+        if memories:
+            try : to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
+                                                          size=m["size"]))
+                                           for m in memories])
+            except (KeyError, TypeError, IndexError) as e : pass
         try: algorithms = device("algorithm")
         except:
             try: algorithms = device.parent("algorithm")
